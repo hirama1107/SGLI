@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Parameters
-WD="/data01/people/hirama/LAI/SGLI/"             # Working directory
+WD="/data01/people/hirama/LAI/SGLI"              # Working directory
 YEAR="2023"                                      # Year (e.g., 2023 or 2024)
 START_MONTH="01"                                 # Start month (e.g., 05)
 START_DAY="01"                                   # Start day (e.g., 10)
 END_MONTH="01"                                   # End month (e.g., 05)
-END_DAY="01"                                     # End day (e.g., 15)
+END_DAY="02"                                     # End day (e.g., 15)
 
 # Get tile information using Python script
 TILES=$(python3 tile_calculator.py)

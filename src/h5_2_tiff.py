@@ -165,27 +165,47 @@ if __name__ == '__main__':
 		#L2の場合
 		gcp_list=get_L2_geomesh(hdf_filename,lin_size,col_size)
 
-	#出力
+	# 出力ファイルの作成とリサンプリング
 	dtype = gdal.GDT_Float32
-	band=1
-	output = gdal.GetDriverByName('GTiff').Create(output_file,lin_size,col_size,band,dtype) 
-	output.GetRasterBand(1).WriteArray(Value_arr)
-	wkt = output.GetProjection()
-	output.SetGCPs(gcp_list,wkt)
-	#与えたGCPを使ってEPSG4326に投影変換
-	output = gdal.Warp(output_file, \
-			output, \
-			dstSRS='+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',\
-			srcNodata=np.nan,\
-			dstNodata=np.nan,\
-			tps = True, \
-			outputType=dtype,\
-			multithread=True,\
-			resampleAlg=gdalconst.GRIORA_NearestNeighbour)
-	output.FlushCache()
-	output = None 	
-	print('CREATE '+output_file)
+	band = 1
 
-#CLOSE HDF FILE
-	Image_var=None	
-	hdf_file=None
+	# 一時的なファイルを作成して Value_arr を保存
+	temp_file = "temp_output.tif"
+	output = gdal.GetDriverByName('GTiff').Create(temp_file, lin_size, col_size, band, dtype)
+	output.GetRasterBand(1).WriteArray(Value_arr)
+
+	# GCPを設定
+	wkt = output.GetProjection()
+	output.SetGCPs(gcp_list, wkt)
+
+	# 出力ファイルを閉じる
+	output.FlushCache()
+	output = None
+
+	# 解像度 (30 arc-sec = 0.0083333333 degrees)
+	target_resolution = 0.0083333333
+
+	# リサンプリングと投影変換を実行
+	output = gdal.Warp(
+		output_file,                   # 出力ファイル名
+		temp_file,                     # 一時的な入力ファイル
+		xRes=target_resolution,        # 横方向解像度
+		yRes=target_resolution,        # 縦方向解像度
+		resampleAlg=gdalconst.GRIORA_Cubic,  # リサンプリング方法：バイキュービック
+		dstSRS="EPSG:4326",            # WGS84（緯度経度座標系）
+		srcNodata=np.nan,              # 元データのNoData値
+		dstNodata=np.nan               # 出力データのNoData値
+	)
+
+	# 最終出力ファイルのメモリ解放
+	output = None
+
+	# 一時ファイルの削除（必要に応じて）
+	import os
+	os.remove(temp_file)
+
+	print('CREATE ' + output_file)
+
+	# CLOSE HDF FILE
+	Image_var = None
+	hdf_file = None
