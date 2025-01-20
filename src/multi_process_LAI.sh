@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Parameters
-WD="/home/hirama/Downloads/Glob_Env_Metrology-main/assignment/"          # Working directory
+WD="/data01/people/hirama/LAI/SGLI"              # Working directory
 YEAR="2023"                                      # Year (e.g., 2023 or 2024)
-START_MONTH="08"                                 # Start month (e.g., 05)
-START_DAY="16"                                   # Start day (e.g., 10)
-END_MONTH="08"                                   # End month (e.g., 05)
-END_DAY="20"                                     # End day (e.g., 15)
+START_MONTH="01"                                 # Start month (e.g., 05)
+START_DAY="01"                                   # Start day (e.g., 10)
+END_MONTH="01"                                   # End month (e.g., 05)
+END_DAY="02"                                     # End day (e.g., 15)
 
 # Get tile information using Python script
 TILES=$(python3 tile_calculator.py)
@@ -33,28 +33,46 @@ while [[ "$current_date" < "$END_DATE" ]] || [[ "$current_date" == "$END_DATE" ]
         SAVE_DIR="${WD}/LAI_data/${YEAR}/${MONTH}${DAY}/"
         SAVE_PATH="${SAVE_DIR}${FILE_NAME}"
 
-        # Check if the file already exists
-        if [[ -f "$SAVE_PATH" ]]; then
-            echo "File already exists: $SAVE_PATH. Skipping download."
+        # Create Geotiff directory
+        GEOTIFF_DIR="${WD}/Geotiff/${YEAR}/${MONTH}${DAY}/"
+        mkdir -p "$GEOTIFF_DIR"
+
+        # Define output GeoTIFF file path
+        OUTPUT_TIFF="${GEOTIFF_DIR}${FILE_NAME%.h5}.tif"
+
+        # Check if the GeoTIFF file already exists
+        if [[ -f "$OUTPUT_TIFF" ]]; then
+            echo "GeoTIFF already exists: $OUTPUT_TIFF. Skipping."
             continue
         fi
 
-        # Create the directory if it doesn't exist
-        mkdir -p "$SAVE_DIR"
+        # Check if the HDF5 file already exists
+        if [[ ! -f "$SAVE_PATH" ]]; then
+            echo "File does not exist locally. Downloading: $FILE_NAME"
+            mkdir -p "$SAVE_DIR"
+            wget "$URL" -P "$SAVE_DIR" --quiet
 
-        # Download the file using wget
-        echo "Downloading $FILE_NAME from $URL..."
-        wget "$URL" -P "$SAVE_DIR" --quiet
-
-        # Check if the download was successful
-        if [[ $? -eq 0 ]]; then
-            echo "Download completed: ${SAVE_PATH}"
+            # Check if the download was successful
+            if [[ $? -ne 0 ]]; then
+                echo "Error: Failed to download $FILE_NAME from $URL"
+                continue
+            fi
+            echo "Download completed: $SAVE_PATH"
         else
-            echo "Error: Failed to download $FILE_NAME from $URL"
+            echo "File already exists: $SAVE_PATH"
+        fi
+
+        # Convert HDF5 to GeoTIFF using Python script
+        echo "Converting $SAVE_PATH to GeoTIFF..."
+        python3 h5_2_tiff.py "$SAVE_PATH" "LAI" "$OUTPUT_TIFF"
+
+        if [[ $? -eq 0 ]]; then
+            echo "GeoTIFF created: $OUTPUT_TIFF"
+        else
+            echo "Error: Failed to convert $SAVE_PATH to GeoTIFF."
         fi
     done
 
     # Move to the next day
     current_date=$(date -d "$current_date + 1 day" +%Y-%m-%d)
 done
-
