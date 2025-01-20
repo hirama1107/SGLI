@@ -1,6 +1,5 @@
-# ignore .tif, .hdf, h5
-
 *.tif
 *.hdf
 *.h5
 *.tiff
+__pycache__/
