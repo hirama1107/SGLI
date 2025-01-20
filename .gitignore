@@ -2,4 +2,4 @@
 *.hdf
 *.h5
 *.tiff
-__pycache__/
+*.pyc
