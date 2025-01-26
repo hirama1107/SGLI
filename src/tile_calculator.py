@@ -12,14 +12,16 @@ def calculate_unique_tiles(num_pix, lat_list, lon_list):
 
     return list(vh_set)
 
-site, lat, lon = gen_ns.load_sitedata()
+if __name__ == '__main__':
 
-num_pix = 4800
+    site, lat, lon = gen_ns.load_sitedata()
 
-# 重複のないタイル番号 (V, H) のリストを生成
-unique_tiles = calculate_unique_tiles(num_pix, lat, lon)
+    num_pix = 4800
 
-# 結果を表示
-print("Unique tiles (V, H):")
-for vh in unique_tiles:
-    print(f"{vh[0]:02d} {vh[1]:02d}")
+    # 重複のないタイル番号 (V, H) のリストを生成
+    unique_tiles = calculate_unique_tiles(num_pix, lat, lon)
+
+    # 結果を表示
+    print("Unique tiles (V, H):")
+    for vh in unique_tiles:
+        print(f"{vh[0]:02d} {vh[1]:02d}")

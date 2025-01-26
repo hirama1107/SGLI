@@ -35,9 +35,9 @@ if __name__ == '__main__':
     wd = sys.argv[1]
     year = sys.argv[2]
     siteinfo_csv = "../siteinfo/tile_data.csv"
-    output_dir = os.path.join(wd, "output", "total", year)
+    output_dir = os.path.join(wd, "output", "over", year)
     os.makedirs(output_dir, exist_ok=True)
-    wd = os.path.join(wd, "Geotiff", "total")
+    wd = os.path.join(wd, "Geotiff", "over")
 
     site_data = {}
 
@@ -55,7 +55,6 @@ if __name__ == '__main__':
     for year in os.listdir(wd):
         if year != sys.argv[2]:
             continue
-
         year_dir = os.path.join(wd, year)
         if not os.path.isdir(year_dir) or not year.isdigit():
             continue
@@ -79,7 +78,7 @@ if __name__ == '__main__':
                     data["H"]
                 )
 
-                input_f = f"GC1SG1_{date_str}D01D_T{V:02d}{H:02d}_L2SG_LAI_Q_3000.tif"
+                input_f = f"GC1SG1_{date_str}D01D_T{V:02d}{H:02d}_L2SG_LAI_Q_3000_over.tif"
                 target_f = os.path.join(subdir, input_f)
 
                 if not os.path.exists(target_f):

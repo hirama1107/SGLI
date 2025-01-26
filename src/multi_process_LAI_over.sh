@@ -34,11 +34,11 @@ while [[ "$current_date" < "$END_DATE" ]] || [[ "$current_date" == "$END_DATE" ]
         SAVE_PATH="${SAVE_DIR}${FILE_NAME}"
 
         # Create Geotiff directory
-        GEOTIFF_DIR="${WD}/Geotiff/total/${YEAR}/${MONTH}${DAY}/"
+        GEOTIFF_DIR="${WD}/Geotiff/over/${YEAR}/${MONTH}${DAY}/"
         mkdir -p "$GEOTIFF_DIR"
 
         # Define output GeoTIFF file path
-        OUTPUT_TIFF="${GEOTIFF_DIR}${FILE_NAME%.h5}.tif"
+        OUTPUT_TIFF="${GEOTIFF_DIR}${FILE_NAME%.h5}_over.tif"
 
         # Check if the GeoTIFF file already exists
         if [[ -f "$OUTPUT_TIFF" ]]; then
@@ -64,7 +64,7 @@ while [[ "$current_date" < "$END_DATE" ]] || [[ "$current_date" == "$END_DATE" ]
 
         # Convert HDF5 to GeoTIFF using Python script
         echo "Converting $SAVE_PATH to GeoTIFF..."
-        python3 h5_2_tiff.py "$SAVE_PATH" "LAI" "$OUTPUT_TIFF"
+        python3 h5_2_tiff.py "$SAVE_PATH" "Overstory_LAI" "$OUTPUT_TIFF"
 
         if [[ $? -eq 0 ]]; then
             echo "GeoTIFF created: $OUTPUT_TIFF"
@@ -77,4 +77,5 @@ while [[ "$current_date" < "$END_DATE" ]] || [[ "$current_date" == "$END_DATE" ]
     current_date=$(date -d "$current_date + 1 day" +%Y-%m-%d)
 done
 
-python3 extract_pixel.py $WD $YEAR
+
+python3 extract_pixel_over.py $WD $YEAR
