@@ -3,3 +3,8 @@
 *.h5
 *.tiff
 *.pyc
+__pycache__/
+Geotiff/
+hdf5/
+output/
+.git/
